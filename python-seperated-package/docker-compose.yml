@@ -1,0 +1,27 @@
+version: "3.5"
+
+services:
+  python-package:
+    build:
+      context: .
+      dockerfile: package.Dockerfile 
+    container_name: python-package
+    tty: true
+    volumes:
+      - shared-volume:/share
+
+  python-service:
+    build:
+      context: .
+      dockerfile: service.Dockerfile 
+    container_name: python-service
+    tty: true
+    volumes:
+      - shared-volume:/share
+    depends_on:
+      - python-package
+          
+  
+volumes:
+  shared-volume:
+
