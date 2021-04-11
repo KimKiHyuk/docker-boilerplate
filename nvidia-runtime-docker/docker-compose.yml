@@ -1,7 +1,7 @@
 version: "3.5"
+
 services:
   nvidia-runtime:
-    image: nvidia-runtime:latest
     build:
         context: .
         dockerfile: nvidia.Dockerfile 
@@ -14,13 +14,12 @@ services:
       - python-package
       - python-source
     deploy:
-    resources:
+      resources:
         reservations:
-        devices:
-        - capabilities: [gpu]
+          devices:
+            - capabilities: [gpu]
 
   python-package:
-    image: python-package:latest
     build:
         context: .
         dockerfile: package.Dockerfile 
@@ -30,7 +29,9 @@ services:
       - python-pacakge-volume:/share
   
   python-source:
-    image: python-source:latest
+    build:
+      context: .
+      dockerfile: source.Dockerfile 
     container_name: python-source
     build:
         context: .
