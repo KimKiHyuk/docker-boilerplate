@@ -1,0 +1,46 @@
+version: "3.5"
+services:
+  nvidia-runtime:
+    image: nvidia-runtime:latest
+    build:
+        context: .
+        dockerfile: nvidia.Dockerfile 
+    container_name: nvidia-runtime
+    tty: true
+    volumes:
+      - source-code-volume:/usr/src/app
+      - python-pacakge-volume:/share
+    depends_on:
+      - python-package
+      - python-source
+    deploy:
+    resources:
+        reservations:
+        devices:
+        - capabilities: [gpu]
+
+  python-package:
+    image: python-package:latest
+    build:
+        context: .
+        dockerfile: package.Dockerfile 
+    container_name: python-package
+    tty: true
+    volumes:
+      - python-pacakge-volume:/share
+  
+  python-source:
+    image: python-source:latest
+    container_name: python-source
+    build:
+        context: .
+        dockerfile: source.Dockerfile 
+    tty: true
+    volumes:
+      - source-code-volume:/usr/src/app
+
+      
+  
+volumes:
+  source-code-volume:
+  python-pacakge-volume:
