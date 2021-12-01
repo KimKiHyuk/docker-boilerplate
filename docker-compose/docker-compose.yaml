@@ -1,0 +1,106 @@
+version: '3.5'
+services:
+  demo-mongo-keys:
+    image: openssl
+    build: openssl/.
+    tty: true
+    volumes:
+      - 'demo-mongo-keys:/mongo-conf'
+    command: bash -c "openssl rand -base64 741 > /mongo-conf/mongodb-keyfile; chmod 600 /mongo-conf/mongodb-keyfile; chown 999 /mongo-conf/mongodb-keyfile"
+  
+  demo-mongo-init:
+    image: 'mongo:4.4'
+    tty: true
+    container_name: demo-mongo-init
+    networks:
+      - demo-replica-set
+    depends_on:
+      - "demo-mongo-primary"
+    volumes:
+      - "./scripts:/scripts"
+    env_file: ./mongod.env
+    command: sh -c "/scripts/init.sh"
+    
+  demo-mongo-primary:
+    image: 'mongo:4.4'
+    container_name: demo-mongo-primary
+    volumes:
+      - 'demo-mongo-keys:/opt/keyfile'
+      - 'demo-mongo-data-0:/data/db'
+    env_file: ./mongod.env
+    ports:
+      - '27020:27017'
+    command: mongod --auth --keyFile /opt/keyfile/mongodb-keyfile --replSet demo-replica-set
+    depends_on:
+      - demo-mongo-keys
+      - demo-mongo-node-1
+      - demo-mongo-node-2
+      - demo-mongo-node-3
+    networks:
+      - demo-replica-set
+
+  demo-mongo-node-1:
+    image: 'mongo:4.4'
+    container_name: demo-mongo-node-1
+    volumes:
+      - 'demo-mongo-keys:/opt/keyfile'
+      - 'demo-mongo-data-1:/data/db'
+    env_file: ./mongod.env
+    ports:
+      - '27021:27017'
+    command: mongod --auth --keyFile /opt/keyfile/mongodb-keyfile --replSet demo-replica-set
+    depends_on:
+      - demo-mongo-keys
+    networks:
+      - demo-replica-set
+  demo-mongo-node-2:
+    image: 'mongo:4.4'
+    container_name: demo-mongo-node-2
+    volumes:
+      - 'demo-mongo-keys:/opt/keyfile'
+      - 'demo-mongo-data-2:/data/db'
+    env_file: ./mongod.env
+    ports:
+      - '27022:27017'
+    command: mongod --auth --keyFile /opt/keyfile/mongodb-keyfile --replSet demo-replica-set
+    depends_on:
+      - demo-mongo-keys
+    networks:
+      - demo-replica-set
+  demo-mongo-node-3:
+    image: 'mongo:4.4'
+    container_name: demo-mongo-node-3
+    volumes:
+      - 'demo-mongo-keys:/opt/keyfile'
+      - 'demo-mongo-data-3:/data/db'
+    env_file: ./mongod.env
+    ports:
+      - '27023:27017'
+    command: mongod --auth --keyFile /opt/keyfile/mongodb-keyfile --replSet demo-replica-set
+    depends_on:
+      - demo-mongo-keys
+    networks:
+      - demo-replica-set
+  demo-mongo-test:
+    image: 'mongo:4.4'
+    tty: true
+    container_name: demo-mongo-test
+    networks:
+      - demo-replica-set
+
+  
+
+volumes:
+  demo-mongo-keys: 
+  demo-mongo-data-0: 
+  demo-mongo-data-1: 
+  demo-mongo-data-2: 
+  demo-mongo-data-3: 
+
+networks:
+  demo-replica-set:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.0.16/28  
