@@ -19,7 +19,7 @@ services:
     volumes:
       - "./scripts:/scripts"
     env_file: ./mongod.env
-    command: sh -c "/scripts/init.sh"
+    command: bash -c "/scripts/init.sh"
     
   demo-mongo-primary:
     image: 'mongo:4.4'
