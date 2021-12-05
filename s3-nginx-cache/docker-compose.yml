@@ -1,0 +1,9 @@
+services:
+  s3-proxy:
+    image: nginx
+    container_name: s3-proxy
+    tty: true
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
